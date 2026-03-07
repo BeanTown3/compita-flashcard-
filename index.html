@@ -314,6 +314,89 @@
       color: var(--text-muted);
     }
 
+    /* ── Projects ── */
+    #projects {
+      background: var(--bg-secondary);
+      max-width: 100%;
+      padding: 6rem 2rem;
+    }
+
+    #projects .inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-top: 0.5rem;
+    }
+
+    .project-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.75rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+    }
+
+    .project-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 32px rgba(88, 166, 255, 0.12);
+    }
+
+    .project-icon {
+      font-size: 2rem;
+      display: block;
+    }
+
+    .project-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .project-card p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      flex: 1;
+    }
+
+    .project-tag {
+      display: inline-block;
+      background: var(--accent-glow);
+      border: 1px solid rgba(88, 166, 255, 0.25);
+      color: var(--accent);
+      padding: 0.2rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .btn-project {
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.6rem 1.4rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-decoration: none;
+      background: var(--accent);
+      color: #0d1117;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .btn-project:hover {
+      background: #79b8ff;
+      box-shadow: 0 0 24px rgba(88, 166, 255, 0.35);
+      transform: translateY(-2px);
+    }
+
     /* ── Contact ── */
     #contact {
       text-align: center;
@@ -414,6 +497,7 @@
     <ul>
       <li><a href="#about">About</a></li>
       <li><a href="#hobbies">Hobbies</a></li>
+      <li><a href="#projects">Projects</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
   </nav>
@@ -490,6 +574,25 @@
           <span class="hobby-icon" aria-hidden="true">&#x1F3A8;</span>
           <h3>Photography</h3>
           <p>Capturing moments, experimenting with light, and finding beauty in everyday scenes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects -->
+  <section id="projects">
+    <div class="inner">
+      <p class="section-label">What I've built</p>
+      <h2 class="section-title">Claude Code Projects</h2>
+      <div class="divider"></div>
+
+      <div class="projects-grid">
+        <div class="project-card">
+          <span class="project-icon">&#x1F4C7;</span>
+          <h3>CompTIA A+ Flashcards</h3>
+          <p>An interactive flashcard app to study for the CompTIA A+ certification. Flip cards, track progress, and quiz yourself on key concepts.</p>
+          <span class="project-tag">HTML</span>
+          <a href="comptia-flashcards.html" class="btn-project">Open Flashcards</a>
         </div>
       </div>
     </div>
