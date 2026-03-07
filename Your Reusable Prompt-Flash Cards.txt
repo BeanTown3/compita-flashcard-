@@ -1,0 +1,14 @@
+Your Reusable Prompt
+Save this somewhere (Notepad, sticky note, whatever) and paste it when you start a new conversation with me:
+
+I'm building a CompTIA A+ flashcard website. I have an HTML file with all my chapters saved in it. 
+
+When I give you new chapter notes (screenshots, copy-paste, or files), please format them into this import-ready format:
+
+## Section Name
+Term - Definition
+Term - Definition
+
+Keep the same structure: chapter name, sub-sections, and Term - Definition format with spaces around the dash.
+
+After formatting, also give me the JavaScript array version so I can ask you to bake it permanently into my HTML file when I'm ready for an updated build.

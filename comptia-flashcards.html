@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CompTIA A+ Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1117;
+    --surface: #161b22;
+    --surface2: #1c2333;
+    --card-front: #1c2333;
+    --card-back: #0f2d1e;
+    --accent: #58a6ff;
+    --accent-glow: rgba(88, 166, 255, 0.15);
+    --green: #3fb950;
+    --green-glow: rgba(63, 185, 80, 0.15);
+    --orange: #d29922;
+    --orange-glow: rgba(210, 153, 34, 0.12);
+    --red: #f85149;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --border: #30363d;
+    --radius: 20px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(88,166,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(88,166,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none; z-index: 0;
+  }
+  .screen { display: none; position: relative; z-index: 1; }
+  .screen.active { display: block; }
+
+  /* HOME */
+  .home-header { text-align: center; padding: 40px 20px 12px; }
+  .home-header h1 {
+    font-weight: 900; font-size: 2.2rem; letter-spacing: -1px;
+    background: linear-gradient(135deg, var(--accent), var(--green));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .home-header p { color: var(--text-dim); font-size: 0.9rem; margin-top: 6px; font-weight: 300; }
+  .home-stats { display: flex; justify-content: center; gap: 32px; padding: 16px 20px 8px; }
+  .home-stat { text-align: center; }
+  .home-stat .num { font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; font-weight: 700; color: var(--accent); }
+  .home-stat .label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; font-family: 'JetBrains Mono', monospace; }
+  .home-toolbar { display: flex; justify-content: center; gap: 8px; padding: 16px 20px; }
+  .home-toolbar button { font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 0.85rem; background: var(--accent); color: #000; border: none; padding: 10px 24px; border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+  .home-toolbar button:hover { opacity: 0.85; }
+  .home-toolbar .secondary-btn { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+  .home-toolbar .secondary-btn:hover { border-color: var(--accent); background: var(--surface2); }
+  .chapter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; padding: 8px 20px 40px; max-width: 900px; margin: 0 auto; }
+  .chapter-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; cursor: pointer; transition: all 0.25s; position: relative; overflow: hidden; }
+  .chapter-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--green)); opacity: 0; transition: opacity 0.25s; }
+  .chapter-card:hover { border-color: var(--accent); box-shadow: 0 0 30px var(--accent-glow); transform: translateY(-2px); }
+  .chapter-card:hover::before { opacity: 1; }
+  .chapter-card .chapter-icon { font-size: 1.8rem; margin-bottom: 12px; }
+  .chapter-card .chapter-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
+  .chapter-card .chapter-meta { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-dim); display: flex; gap: 12px; margin-bottom: 12px; }
+  .chapter-card .chapter-sections { display: flex; flex-wrap: wrap; gap: 4px; }
+  .chapter-card .section-tag { font-size: 0.65rem; font-family: 'JetBrains Mono', monospace; background: var(--bg); color: var(--text-dim); padding: 2px 8px; border-radius: 6px; border: 1px solid var(--border); }
+
+  /* STUDY */
+  .study-wrapper { max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+  .study-top-bar { width: 100%; display: flex; align-items: center; padding: 20px 20px 8px; gap: 12px; }
+  .back-btn { font-family: 'Outfit', sans-serif; font-weight: 500; font-size: 0.85rem; background: transparent; color: var(--text-dim); border: 1px solid var(--border); border-radius: 10px; padding: 7px 16px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+  .back-btn:hover { color: var(--text); border-color: var(--text-dim); }
+  .study-title { font-size: 1.3rem; font-weight: 900; background: linear-gradient(135deg, var(--accent), var(--green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; flex: 1; }
+  .study-actions { display: flex; gap: 6px; }
+  .study-actions button { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; background: transparent; color: var(--text-dim); border: 1px solid transparent; padding: 5px 10px; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+  .study-actions button:hover { color: var(--text); border-color: var(--border); background: var(--surface); }
+
+  /* Sub-tabs with arrows */
+  .sub-tabs-outer { width: 100%; padding: 10px 20px 0; display: flex; align-items: center; gap: 6px; }
+  .scroll-arrow { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); color: var(--text-dim); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; font-size: 1rem; user-select: none; }
+  .scroll-arrow:hover { color: var(--text); border-color: var(--accent); background: var(--surface2); box-shadow: 0 0 12px var(--accent-glow); }
+  .scroll-arrow.hidden { opacity: 0.15; pointer-events: none; }
+  .sub-tabs-wrap { flex: 1; overflow-x: auto; scrollbar-width: none; scroll-behavior: smooth; }
+  .sub-tabs-wrap::-webkit-scrollbar { display: none; }
+  .sub-tabs { display: flex; gap: 5px; min-width: max-content; }
+  .sub-tab { font-family: 'Outfit', sans-serif; font-size: 0.73rem; font-weight: 500; padding: 6px 14px; border-radius: 9px; border: 1px solid var(--border); background: var(--surface); color: var(--text-dim); cursor: pointer; transition: all 0.2s; white-space: nowrap; display: flex; align-items: center; gap: 5px; }
+  .sub-tab:hover { color: var(--text); border-color: var(--text-dim); }
+  .sub-tab.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+  .sub-tab .cnt { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; background: rgba(0,0,0,0.2); padding: 1px 5px; border-radius: 5px; }
+  .sub-tab.active .cnt { background: rgba(0,0,0,0.25); color: #000; }
+
+  .progress-wrap { width: 100%; max-width: 600px; margin: 12px auto 0; padding: 0 20px; }
+  .progress-bar { height: 4px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--green)); border-radius: 4px; transition: width 0.4s; }
+  .progress-text { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-dim); margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
+
+  .card-area { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; padding: 20px; }
+  .card-container { width: 100%; max-width: 560px; height: 320px; perspective: 1200px; cursor: pointer; }
+  .card { position: relative; width: 100%; height: 100%; transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
+  .card.flipped { transform: rotateY(180deg); }
+  .card-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 36px 32px; border: 1px solid var(--border); text-align: center; overflow-y: auto; }
+  .card-front { background: var(--card-front); box-shadow: 0 0 40px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,0.04); }
+  .card-front .flabel { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 3px; color: var(--accent); margin-bottom: 6px; opacity: 0.7; }
+  .card-front .section-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--orange); background: var(--orange-glow); padding: 3px 10px; border-radius: 6px; margin-bottom: 16px; }
+  .card-front .term { font-size: 1.65rem; font-weight: 700; line-height: 1.3; letter-spacing: -0.5px; }
+  .card-front .hint { margin-top: 18px; font-size: 0.7rem; color: var(--text-dim); opacity: 0.45; }
+  .card-back { background: var(--card-back); transform: rotateY(180deg); box-shadow: 0 0 40px var(--green-glow), inset 0 1px 0 rgba(255,255,255,0.04); }
+  .card-back .flabel { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 3px; color: var(--green); margin-bottom: 12px; opacity: 0.7; }
+  .card-back .definition { font-size: 1.02rem; font-weight: 300; line-height: 1.7; max-width: 460px; }
+
+  .nav { display: flex; align-items: center; gap: 10px; padding: 0 20px 16px; flex-wrap: wrap; justify-content: center; }
+  .nav button { font-family: 'Outfit', sans-serif; font-weight: 500; font-size: 0.88rem; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 9px 22px; border-radius: 12px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+  .nav button:hover:not(:disabled) { background: var(--card-front); border-color: var(--accent); box-shadow: 0 0 20px var(--accent-glow); }
+  .nav button:disabled { opacity: 0.3; cursor: not-allowed; }
+  .kbd-hints { display: flex; gap: 14px; padding-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+  .kbd-hints span { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--text-dim); opacity: 0.45; }
+  .kbd-hints kbd { display: inline-block; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; margin: 0 2px; }
+
+  /* MODALS */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); width: 100%; max-width: 580px; max-height: 85vh; overflow-y: auto; padding: 28px; }
+  .modal h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; }
+  .modal p.subtitle { color: var(--text-dim); font-size: 0.8rem; margin-bottom: 18px; font-weight: 300; }
+  .modal label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.63rem; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); margin-bottom: 4px; margin-top: 12px; }
+  .modal input, .modal textarea, .modal select { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; color: var(--text); font-family: 'Outfit', sans-serif; font-size: 0.88rem; outline: none; transition: border-color 0.2s; }
+  .modal input:focus, .modal textarea:focus, .modal select:focus { border-color: var(--accent); }
+  .modal textarea { resize: vertical; min-height: 60px; }
+  .modal select { cursor: pointer; }
+  .modal select option { background: var(--bg); }
+  .modal-actions { display: flex; gap: 8px; margin-top: 18px; justify-content: flex-end; }
+  .modal-actions button { font-family: 'Outfit', sans-serif; font-weight: 500; font-size: 0.83rem; padding: 9px 20px; border-radius: 10px; cursor: pointer; border: 1px solid var(--border); transition: all 0.2s; }
+  .btn-cancel { background: transparent; color: var(--text-dim); }
+  .btn-cancel:hover { color: var(--text); }
+  .btn-save { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+  .btn-save:hover { opacity: 0.85; }
+  .btn-delete { background: transparent; color: var(--red); border-color: rgba(248,81,73,0.2); margin-right: auto; }
+  .btn-delete:hover { border-color: var(--red); }
+  .import-instructions { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 14px; font-size: 0.78rem; color: var(--text-dim); line-height: 1.6; }
+  .import-instructions code { background: var(--surface); padding: 2px 6px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; color: var(--accent); }
+  .import-preview { margin-top: 10px; padding: 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; font-size: 0.78rem; color: var(--green); font-family: 'JetBrains Mono', monospace; display: none; }
+  .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--green); color: #000; font-weight: 700; font-size: 0.85rem; padding: 10px 24px; border-radius: 12px; z-index: 200; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+  @media (max-width: 600px) {
+    .chapter-grid { grid-template-columns: 1fr; }
+    .card-container { height: 290px; }
+    .card-front .term { font-size: 1.3rem; }
+    .card-back .definition { font-size: 0.92rem; }
+    .home-header h1 { font-size: 1.6rem; }
+    .study-title { font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="screen active" id="homeScreen">
+  <div class="home-header">
+    <h1>CompTIA A+ Flashcards</h1>
+    <p>Your personal study deck &middot; Tap a chapter to start studying</p>
+  </div>
+  <div class="home-stats">
+    <div class="home-stat"><div class="num" id="statChapters">0</div><div class="label">Chapters</div></div>
+    <div class="home-stat"><div class="num" id="statCards">0</div><div class="label">Cards</div></div>
+  </div>
+  <div class="home-toolbar">
+    <button onclick="openImport()">+ Import Chapter</button>
+    <button class="secondary-btn" onclick="studyAll()">Study All Cards</button>
+  </div>
+  <div id="chapterGrid" class="chapter-grid"></div>
+</div>
+
+<div class="screen" id="studyScreen">
+  <div class="study-wrapper">
+    <div class="study-top-bar">
+      <button class="back-btn" onclick="goHome()">&#8592; Chapters</button>
+      <div class="study-title" id="studyTitle"></div>
+      <div class="study-actions">
+        <button onclick="openAddCard()">+ Add</button>
+        <button onclick="openEditCard()">Edit</button>
+      </div>
+    </div>
+    <div class="sub-tabs-outer">
+      <div class="scroll-arrow" id="scrollLeft" onclick="scrollTabs(-1)">&#8249;</div>
+      <div class="sub-tabs-wrap" id="subTabsWrap">
+        <div class="sub-tabs" id="subTabs"></div>
+      </div>
+      <div class="scroll-arrow" id="scrollRight" onclick="scrollTabs(1)">&#8250;</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-text"><span id="progressLabel">1 / 1</span><span id="sectionLabel"></span></div>
+    </div>
+    <div class="card-area" id="cardArea">
+      <div class="card-container" onclick="flipCard()">
+        <div class="card" id="card">
+          <div class="card-face card-front">
+            <div class="section-badge" id="secBadge"></div>
+            <div class="flabel">Term</div>
+            <div class="term" id="termText"></div>
+            <div class="hint">click to reveal</div>
+          </div>
+          <div class="card-face card-back">
+            <div class="flabel">Definition</div>
+            <div class="definition" id="defText"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="nav">
+      <button id="prevBtn" onclick="prev()"><span>&#8592;</span> Prev</button>
+      <button onclick="shuffle()">Shuffle</button>
+      <button id="nextBtn" onclick="next()">Next <span>&#8594;</span></button>
+    </div>
+    <div class="kbd-hints">
+      <span><kbd>Space</kbd> flip</span>
+      <span><kbd>&#8592;</kbd> prev</span>
+      <span><kbd>&#8594;</kbd> next</span>
+      <span><kbd>S</kbd> shuffle</span>
+      <span><kbd>Esc</kbd> back</span>
+    </div>
+  </div>
+</div>
+
+<!-- Import Modal -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal">
+    <h2>Import Chapter</h2>
+    <p class="subtitle">Paste your vocabulary notes below</p>
+    <label>Chapter Name</label>
+    <input type="text" id="importChapter" placeholder="e.g. Section 7: Chapter 6: Motherboards" />
+    <div class="import-instructions" style="margin-top:14px">
+      <strong>Format:</strong><br>
+      <code>## Section Name</code> &larr; sub-section<br>
+      <code>Term - Definition</code> &larr; one card per line
+    </div>
+    <label>Paste Your Notes</label>
+    <textarea id="importText" rows="10" placeholder="## Section Name
+Term - Definition
+Term - Definition"></textarea>
+    <div class="import-preview" id="importPreview"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeImport()">Cancel</button>
+      <button class="btn-save" onclick="runImport()">Import</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit/Add Modal -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h2 id="editTitle">Edit Card</h2>
+    <p class="subtitle" id="editSubtitle"></p>
+    <label>Sub-Section</label>
+    <select id="editSection"></select>
+    <label>Or New Sub-Section</label>
+    <input type="text" id="editNewSec" placeholder="Leave blank to use above" />
+    <label>Term</label>
+    <input type="text" id="editTerm" placeholder="e.g. RAM" />
+    <label>Definition</label>
+    <textarea id="editDef" placeholder="Definition..."></textarea>
+    <div class="modal-actions">
+      <button class="btn-delete" id="editDeleteBtn" onclick="deleteCard()">Delete</button>
+      <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+      <button class="btn-save" onclick="saveCard()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Chapter Modal -->
+<div class="modal-overlay" id="deleteChapterModal">
+  <div class="modal" style="max-width:420px;text-align:center;">
+    <h2>Delete Chapter?</h2>
+    <p class="subtitle" id="deleteChapterName" style="margin-bottom:24px;"></p>
+    <div class="modal-actions" style="justify-content:center;">
+      <button class="btn-cancel" onclick="closeDeleteChapter()">Cancel</button>
+      <button class="btn-delete" onclick="confirmDeleteChapter()" style="margin-right:0;">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// ALL CHAPTERS — PERMANENTLY SAVED
+// ══════════════════════════════════════════════════════════════
+let chapters = [
+// ─── CHAPTER 3: CPUs ───
+{
+  name: "Section 4: Chapter 3: CPUs",
+  cards: [
+    { term: "CPU (Central Processing Unit)", def: "The primary component that executes instructions and performs calculations.", section: "CPU Basics" },
+    { term: "Core", def: "A physical processing unit inside the CPU that executes instructions independently.", section: "CPU Basics" },
+    { term: "Thread", def: "A logical execution path used by a core. Improves efficiency, not raw power.", section: "CPU Basics" },
+    { term: "Clock Speed (GHz)", def: "How fast one core executes instructions. Measured in Gigahertz. Applies per core, not across all cores.", section: "CPU Basics" },
+    { term: "Clock Cycle", def: "A single timing pulse that coordinates CPU operations.", section: "CPU Basics" },
+    { term: "ISA (Instruction Set Architecture)", def: "The instruction language a CPU understands.", section: "Instruction Sets" },
+    { term: "CISC (Complex Instruction Set Computer)", def: "Large, complex instruction set. Used by x86/x64 CPUs (Intel, AMD desktops).", section: "Instruction Sets" },
+    { term: "RISC (Reduced Instruction Set Computing)", def: "Smaller, efficient instruction set. Used by ARM (Advanced RISC Machines) CPUs.", section: "Instruction Sets" },
+    { term: "x86 (32-bit Architecture)", def: "32-bit instruction set. Limited to ~4 GB RAM. Legacy architecture.", section: "Architecture" },
+    { term: "x64 / x86-64 (64-bit Architecture)", def: "64-bit instruction set. Can run 32-bit and 64-bit software. Modern standard.", section: "Architecture" },
+    { term: "APU (Accelerated Processing Unit)", def: "CPU with integrated GPU (Graphics Processing Unit) on the same chip.", section: "Architecture" },
+    { term: "SoC (System on a Chip)", def: "A single chip containing CPU cores, GPU, memory controller, and other components (e.g., Apple M-series).", section: "Architecture" },
+    { term: "Bit", def: "Smallest unit of data (0 or 1).", section: "Bit-Size Vocabulary" },
+    { term: "32-bit OS", def: "Can use ~4 GB RAM total (OS + apps + hardware mapping).", section: "Bit-Size Vocabulary" },
+    { term: "64-bit OS", def: "Can use far more than 4 GB RAM. Required for modern systems.", section: "Bit-Size Vocabulary" },
+    { term: "Backward Compatibility", def: "64-bit CPUs can run 32-bit software. 32-bit CPUs cannot run 64-bit software.", section: "Bit-Size Vocabulary" },
+    { term: "Heat Sink", def: "Metal component that absorbs heat from the CPU.", section: "CPU Cooling" },
+    { term: "Thermal Paste", def: "Fills microscopic air gaps between CPU and heat sink. Required for proper heat transfer.", section: "CPU Cooling" },
+    { term: "Thermal Pad", def: "Pre-applied alternative to thermal paste (less efficient).", section: "CPU Cooling" },
+    { term: "Heat Pipe", def: "Liquid-filled pipe that moves heat away efficiently.", section: "CPU Cooling" },
+    { term: "CFM (Cubic Feet per Minute)", def: "Measures fan airflow volume (NOT heat).", section: "CPU Cooling" },
+    { term: "Liquid Cooling", def: "Uses liquid to transfer heat more efficiently than air. More complex, more failure points.", section: "CPU Cooling" },
+    { term: "ESD (Electrostatic Discharge)", def: "Static electricity that can damage components.", section: "Installation & Hardware" },
+    { term: "ZIF (Zero-Insertion Force) Socket", def: "CPU drops in without force. Lever locks CPU in place.", section: "Installation & Hardware" },
+    { term: "LGA (Land Grid Array)", def: "Pins on the motherboard. Common with Intel.", section: "Installation & Hardware" },
+    { term: "PGA (Pin Grid Array)", def: "Pins on the CPU. Common with AMD.", section: "Installation & Hardware" },
+    { term: "Generation", def: "Indicates how new the CPU is. More important than tier across time.", section: "CPU Selection" },
+    { term: "Tier", def: "Indicates performance level within the same generation (i3/i5/i7/i9 or Ryzen 3/5/7/9).", section: "CPU Selection" },
+    { term: "Unlocked CPU", def: "Can be overclocked (Intel 'K' suffix).", section: "CPU Selection" },
+    { term: "Core Rules", def: "Cores do work. Threads keep cores busy. Clock speed = per-core speed.", section: "Exam Rules" },
+    { term: "Selection Rules", def: "Single task / gaming → clock speed. Multitasking / VMs → cores. Efficiency → threads help.", section: "Exam Rules" },
+    { term: "Bit-Size Rules", def: "32-bit OS = ~4 GB RAM total. 64-bit CPU can run 32-bit software. Bit-size does NOT control multitasking.", section: "Exam Rules" },
+    { term: "Generation vs Tier", def: "Across time → generation matters more than tier. Same generation → tier matters more. (Most missed concept on exam!)", section: "Exam Rules" },
+  ]
+},
+// ─── CHAPTER 4: RAM ───
+{
+  name: "Section 5: Chapter 4: RAM",
+  cards: [
+    { term: "RAM (Random Access Memory)", def: "Temporary, volatile memory used by the CPU to actively process data.", section: "Core Vocabulary" },
+    { term: "DDR (Double Data Rate)", def: "RAM that transfers data twice per clock cycle to increase effective speed.", section: "Core Vocabulary" },
+    { term: "DDR4 (Double Data Rate 4)", def: "Modern standard RAM generation.", section: "Core Vocabulary" },
+    { term: "PC Rating", def: "Maximum theoretical memory bandwidth in megabytes per second (e.g. PC4-25600).", section: "Core Vocabulary" },
+    { term: "DIMM (Dual In-line Memory Module)", def: "Desktop RAM form factor.", section: "Core Vocabulary" },
+    { term: "SODIMM (Small Outline DIMM)", def: "Laptop RAM form factor.", section: "Core Vocabulary" },
+    { term: "ECC (Error-Correcting Code) RAM", def: "RAM that detects and corrects memory errors for servers and workstations.", section: "Core Vocabulary" },
+    { term: "Dual-Channel Memory", def: "Two matched RAM sticks working together to increase memory bandwidth.", section: "Core Vocabulary" },
+    { term: "Virtual Memory", def: "Storage space used by the OS to extend RAM when physical memory is full.", section: "Core Vocabulary" },
+    { term: "Thrashing", def: "Excessive swapping between RAM and storage, causing major slowdowns.", section: "Core Vocabulary" },
+    { term: "ESD (Electrostatic Discharge)", def: "Static electricity that damages components.", section: "Core Vocabulary" },
+    { term: "Buffered (Registered) RAM", def: "More stable server RAM; do not mix with unbuffered.", section: "Core Vocabulary" },
+    { term: "Why doesn't faster RAM fix a slow system with high memory usage?", def: "Speed cannot compensate for insufficient capacity; the system will still rely on virtual memory.", section: "Active Recall" },
+    { term: "What determines max usable RAM first: motherboard or OS?", def: "The OS, especially 32-bit vs 64-bit limits.", section: "Active Recall" },
+    { term: "Why is ECC RAM used in servers instead of consumer PCs?", def: "It detects and corrects memory errors, increasing reliability and preventing crashes.", section: "Active Recall" },
+    { term: "What symptom indicates heavy virtual memory usage?", def: "Constant disk activity caused by excessive paging (thrashing).", section: "Active Recall" },
+    { term: "Why must RAM be tested before closing the case?", def: "To verify RAM is properly seated and detected before full reassembly.", section: "Active Recall" },
+    { term: "What is the most common cause of new RAM not working?", def: "Poorly seated or incompatible RAM.", section: "Active Recall" },
+    { term: "What is the difference between DDR speed and clock speed?", def: "DDR speed is the effective transfer rate; clock speed is the actual oscillation frequency.", section: "Active Recall" },
+    { term: "8 GB RAM", def: "Modern minimum baseline for RAM capacity.", section: "Capacity Rules" },
+    { term: "32-bit OS RAM limit", def: "Approximately 4 GB maximum usable RAM.", section: "Capacity Rules" },
+    { term: "64-bit OS RAM limit", def: "Much higher limits than 32-bit; required for modern systems.", section: "Capacity Rules" },
+    { term: "OS limits RAM first", def: "The operating system determines usable RAM before motherboard or slots matter.", section: "Capacity Rules" },
+    { term: "DDR generations", def: "DDR, DDR2, DDR3, DDR4 are never backward or forward compatible.", section: "RAM Compatibility Rules" },
+    { term: "DDR notch placement", def: "Different physical notches prevent installing the wrong generation.", section: "RAM Compatibility Rules" },
+    { term: "Non-ECC RAM", def: "Standard consumer RAM without error correction.", section: "RAM Compatibility Rules" },
+    { term: "DDR4-3200 example", def: "Equals PC4-25600 bandwidth rating.", section: "RAM Compatibility Rules" },
+    { term: "RAM installation step 1", def: "Power off and remove all power sources.", section: "Installation & Safety" },
+    { term: "RAM installation step 2", def: "Discharge residual power by waiting 30 seconds.", section: "Installation & Safety" },
+    { term: "RAM installation step 3", def: "Use ESD protection and hold RAM by edges only.", section: "Installation & Safety" },
+    { term: "RAM installation step 4", def: "Align notch correctly and press until it snaps into place.", section: "Installation & Safety" },
+    { term: "No boot or no display", def: "Reseat the RAM.", section: "Troubleshooting" },
+    { term: "Less RAM detected than installed", def: "Check OS bit-size and RAM seating.", section: "Troubleshooting" },
+    { term: "Random crashes", def: "Likely incompatible or faulty RAM.", section: "Troubleshooting" },
+    { term: "Slow system with disk activity", def: "Virtual memory overuse; fix by adding more RAM.", section: "Troubleshooting" },
+    { term: "OS decides first", def: "The OS determines usable RAM before hardware does.", section: "Exam Memory Anchors" },
+    { term: "Disk light equals RAM fight", def: "Disk activity during slowdowns means virtual memory is being overused.", section: "Exam Memory Anchors" },
+    { term: "Test before screws", def: "Always verify RAM works before closing the case.", section: "Exam Memory Anchors" },
+    { term: "Speed does not equal capacity", def: "Faster RAM cannot replace having enough RAM.", section: "Exam Memory Anchors" },
+    { term: "If it doesn't snap it's not in", def: "RAM must click into place to be properly seated.", section: "Exam Memory Anchors" },
+  ]
+},
+// ─── CHAPTER 5: BIOS & UEFI ───
+{
+  name: "Section 6: Chapter 5: BIOS & UEFI",
+  cards: [
+    { term: "BIOS (Basic Input/Output System)", def: "Legacy firmware that initializes hardware and starts the boot process before the OS.", section: "Core Definitions" },
+    { term: "UEFI (Unified Extensible Firmware Interface)", def: "Modern replacement for BIOS; faster, graphical, secure, with advanced hardware support.", section: "Core Definitions" },
+    { term: "Firmware", def: "Software permanently stored on the motherboard that runs before the OS.", section: "Core Definitions" },
+    { term: "POST (Power-On Self-Test)", def: "Firmware diagnostic process that checks CPU, RAM, video, and core hardware at startup.", section: "Core Definitions" },
+    { term: "System Setup Utility", def: "Firmware configuration screen used to change boot order, TPM, Secure Boot, passwords, and fan settings.", section: "Core Definitions" },
+    { term: "Boot Order", def: "Permanent priority list of devices the system checks to find an OS.", section: "Core Definitions" },
+    { term: "Boot Menu (F12 common)", def: "One-time temporary menu for selecting a boot device.", section: "Core Definitions" },
+    { term: "Secure Boot", def: "UEFI-only security feature that blocks unsigned or untrusted bootloaders.", section: "Core Definitions" },
+    { term: "TPM (Trusted Platform Module)", def: "Hardware security chip that stores cryptographic keys and system integrity measurements.", section: "Core Definitions" },
+    { term: "M_BIOS (Main BIOS)", def: "Primary active firmware chip.", section: "Core Definitions" },
+    { term: "B_BIOS (Backup BIOS)", def: "Secondary firmware chip containing factory defaults.", section: "Core Definitions" },
+    { term: "CMOS (Complementary Metal-Oxide-Semiconductor)", def: "Memory that stores firmware configuration settings.", section: "CMOS Essentials" },
+    { term: "CMOS Battery", def: "Battery that keeps CMOS settings alive when the system is powered off.", section: "CMOS Essentials" },
+    { term: "Dead CMOS Battery Symptoms", def: "Time/date resets and BIOS settings are lost after every shutdown; fix by replacing battery.", section: "CMOS Essentials" },
+    { term: "Clearing CMOS", def: "Resets firmware settings to factory defaults; does NOT delete user files or data.", section: "CMOS Essentials" },
+    { term: "BIOS Password", def: "Prevents unauthorized changes to firmware settings.", section: "Passwords" },
+    { term: "Boot Password", def: "Required to start the system at all.", section: "Passwords" },
+    { term: "OS User Password", def: "Protects Windows/Linux/macOS login only; not a firmware password.", section: "Passwords" },
+    { term: "Correct Boot Order", def: "Power Button → BIOS/UEFI → POST → Bootloader → Operating System.", section: "Boot Flow" },
+    { term: "Boot Flow Rule", def: "If Windows hasn't loaded yet, the problem is firmware — not the OS.", section: "Boot Flow" },
+    { term: "BIOS/UEFI Context", def: "Who: motherboard firmware. What: initializes hardware. Where: runs before OS. When: immediately after power-on. Why: OS cannot load without it.", section: "Context Framework" },
+    { term: "POST Context", def: "Who: BIOS/UEFI firmware. What: hardware diagnostic. Where: firmware layer. When: right after power-on. Why: ensures CPU, RAM, video work before booting.", section: "Context Framework" },
+    { term: "Secure Boot Context", def: "Who: UEFI firmware. What: validates bootloaders with digital signatures. When: during boot. Why: prevents boot-level malware.", section: "Context Framework" },
+    { term: "TPM Context", def: "Who: dedicated hardware chip. What: stores cryptographic keys. Where: on motherboard or CPU. When: during boot and OS security. Why: enables encryption and trust.", section: "Context Framework" },
+    { term: "CMOS Context", def: "Who: motherboard memory subsystem. What: stores firmware settings. When: continuously powered. Why: retains config when powered off.", section: "Context Framework" },
+    { term: "What runs first when a PC powers on?", def: "BIOS/UEFI firmware runs first.", section: "High-Yield Flashcards" },
+    { term: "What is POST responsible for?", def: "Checking CPU, RAM, video, and core hardware before booting.", section: "High-Yield Flashcards" },
+    { term: "Fans spin but no display — what do you think?", def: "POST or firmware issue.", section: "High-Yield Flashcards" },
+    { term: "Where are boot order changes made?", def: "In the System Setup Utility (firmware).", section: "High-Yield Flashcards" },
+    { term: "Temporary boot from USB — where do you go?", def: "Boot Menu, often accessed with F12.", section: "High-Yield Flashcards" },
+    { term: "What feature blocks unsigned bootloaders?", def: "Secure Boot (UEFI only).", section: "High-Yield Flashcards" },
+    { term: "What does TPM do?", def: "Stores cryptographic keys and integrity measurements.", section: "High-Yield Flashcards" },
+    { term: "What does TPM NOT do?", def: "It does NOT block bootloaders; that is Secure Boot's job.", section: "High-Yield Flashcards" },
+    { term: "Security rule to memorize", def: "Secure Boot decides what can boot. TPM stores the keys.", section: "High-Yield Flashcards" },
+    { term: "Windows 11 firmware requirements", def: "UEFI + TPM + Secure Boot (all three required).", section: "High-Yield Flashcards" },
+    { term: "PC forgets time/date after shutdown — cause?", def: "Dead CMOS battery.", section: "High-Yield Flashcards" },
+    { term: "Fix for lost firmware settings on power-off?", def: "Replace the CMOS battery.", section: "High-Yield Flashcards" },
+    { term: "Which password prevents firmware changes?", def: "BIOS (Setup) Password.", section: "High-Yield Flashcards" },
+    { term: "Which password prevents system startup?", def: "Boot Password.", section: "High-Yield Flashcards" },
+    { term: "Where are fan speeds and temps configured?", def: "System Setup Utility.", section: "High-Yield Flashcards" },
+    { term: "If Windows hasn't loaded the problem is...", def: "Firmware, not the OS.", section: "High-Yield Flashcards" },
+    { term: "Powers on but no display", def: "POST failure; check RAM and GPU.", section: "Troubleshooting Patterns" },
+    { term: "Beep codes on startup", def: "Hardware error; identify the failing component using beep code chart.", section: "Troubleshooting Patterns" },
+    { term: "Loses time and settings after shutdown", def: "Dead CMOS battery; replace the battery.", section: "Troubleshooting Patterns" },
+    { term: "Windows 11 won't install", def: "Firmware config issue; enable UEFI + TPM + Secure Boot.", section: "Troubleshooting Patterns" },
+    { term: "Forgot BIOS password", def: "Firmware lockout; clear CMOS to reset.", section: "Troubleshooting Patterns" },
+    { term: "Fan error on boot", def: "Thermal protection triggered; reseat or replace the fan.", section: "Troubleshooting Patterns" },
+    { term: "Firmware before OS rule", def: "If Windows hasn't loaded, the OS is not the problem.", section: "Exam Rules" },
+    { term: "Secure Boot vs TPM rule", def: "Secure Boot blocks bootloaders; TPM stores keys.", section: "Exam Rules" },
+    { term: "POST failure rule", def: "POST failures stop the system before video or OS loads.", section: "Exam Rules" },
+    { term: "Clearing CMOS rule", def: "Clearing CMOS resets firmware settings, not user data.", section: "Exam Rules" },
+  ]
+},
+// ─── CHAPTER 6: MOTHERBOARDS ───
+{
+  name: "Section 7: Chapter 6: Motherboards",
+  cards: [
+    { term: "Motherboard", def: "The main circuit board that connects and allows communication between all computer components.", section: "Core Vocabulary" },
+    { term: "Form Factor", def: "Standardized specification that defines a motherboard's physical size, mounting holes, and case compatibility.", section: "Core Vocabulary" },
+    { term: "ATX (Advanced Technology eXtended)", def: "Standard full-size desktop motherboard form factor.", section: "Core Vocabulary" },
+    { term: "Micro-ATX", def: "Smaller version of ATX with fewer expansion slots.", section: "Core Vocabulary" },
+    { term: "Mini-ITX (Information Technology eXtended)", def: "Very small motherboard form factor used in compact systems.", section: "Core Vocabulary" },
+    { term: "Chipset", def: "A controller on the motherboard that determines supported features and connectivity.", section: "Core Vocabulary" },
+    { term: "PCH (Platform Controller Hub)", def: "Modern single-chip design that replaced northbridge and southbridge.", section: "Core Vocabulary" },
+    { term: "CPU Socket", def: "The physical interface that connects the CPU to the motherboard.", section: "Core Vocabulary" },
+    { term: "PGA (Pin Grid Array)", def: "CPU design where pins are on the processor; used by AMD.", section: "Core Vocabulary" },
+    { term: "LGA (Land Grid Array)", def: "CPU design where pins are in the socket; used by Intel.", section: "Core Vocabulary" },
+    { term: "PCIe (Peripheral Component Interconnect Express)", def: "High-speed expansion interface for cards and storage.", section: "Core Vocabulary" },
+    { term: "PCIe Lanes", def: "Data pathways that determine how much bandwidth devices can use.", section: "Core Vocabulary" },
+    { term: "DIMM (Dual Inline Memory Module)", def: "Desktop RAM form factor.", section: "Core Vocabulary" },
+    { term: "SO-DIMM (Small Outline DIMM)", def: "Laptop RAM form factor.", section: "Core Vocabulary" },
+    { term: "ECC (Error-Correcting Code) RAM", def: "Memory that detects and corrects data errors; requires motherboard support.", section: "Core Vocabulary" },
+    { term: "SATA (Serial ATA)", def: "Storage interface for HDDs and SSDs.", section: "Core Vocabulary" },
+    { term: "M.2 (Next Generation Form Factor)", def: "Storage form factor (the slot); supports SATA or NVMe protocols.", section: "Core Vocabulary" },
+    { term: "NVMe (Non-Volatile Memory Express)", def: "High-speed storage protocol that uses PCIe lanes.", section: "Core Vocabulary" },
+    { term: "ESD (Electrostatic Discharge)", def: "Static electricity that can damage components.", section: "Core Vocabulary" },
+    { term: "Standoffs", def: "Screws that separate the motherboard from the case to prevent electrical shorts.", section: "Core Vocabulary" },
+    { term: "24-pin ATX Connector", def: "Main power connector for the motherboard.", section: "Core Vocabulary" },
+    { term: "8-pin CPU Power Connector", def: "Dedicated power connector for the CPU.", section: "Core Vocabulary" },
+    { term: "Motherboard Context", def: "Central platform connecting all components. Required in every build. Without it, components cannot communicate.", section: "Context Framework" },
+    { term: "Form Factor Context", def: "Physical size and layout standard. Determines whether the motherboard fits the case.", section: "Context Framework" },
+    { term: "Chipset/PCH Context", def: "Feature-controlling logic made by Intel or AMD. Controls PCIe lanes, USB, storage, and overclocking support.", section: "Context Framework" },
+    { term: "CPU Socket Context", def: "Physical and electrical CPU interface. Incorrect socket means the system will not POST.", section: "Context Framework" },
+    { term: "Expansion & Storage Context", def: "PCIe slots, SATA ports, M.2 slots determine what devices can be installed and used simultaneously.", section: "Context Framework" },
+    { term: "What does a motherboard form factor control?", def: "Physical size, mounting holes, and case compatibility.", section: "Active Recall" },
+    { term: "What replaced northbridge and southbridge?", def: "PCH (Platform Controller Hub).", section: "Active Recall" },
+    { term: "Which company uses PGA sockets?", def: "AMD (Advanced Micro Devices); pins are on the processor.", section: "Active Recall" },
+    { term: "Where are pins located in Intel systems?", def: "In the motherboard socket (LGA — Land Grid Array).", section: "Active Recall" },
+    { term: "What determines motherboard features more than the CPU socket?", def: "The chipset.", section: "Active Recall" },
+    { term: "What PCIe slot is used for graphics cards?", def: "PCIe x16.", section: "Active Recall" },
+    { term: "Can a PCIe x1 card fit in a PCIe x16 slot?", def: "Yes, smaller cards can fit in larger slots.", section: "Active Recall" },
+    { term: "Why can NVMe disable SATA ports?", def: "Shared PCIe lane limitations between NVMe and SATA.", section: "Active Recall" },
+    { term: "What RAM type is used in laptops?", def: "SO-DIMM (Small Outline Dual Inline Memory Module).", section: "Active Recall" },
+    { term: "Why are standoffs critical?", def: "They prevent the motherboard from making electrical contact with the case, avoiding shorts.", section: "Active Recall" },
+    { term: "What limits how many expansion cards can be active?", def: "Chipset PCIe lane availability.", section: "Active Recall" },
+    { term: "Is M.2 a form factor or protocol?", def: "Form factor (the slot); NVMe is the protocol.", section: "Active Recall" },
+    { term: "What two power connectors does a motherboard need?", def: "24-pin ATX main power and 8-pin CPU power.", section: "Active Recall" },
+    { term: "What does ESD protect against?", def: "Static electricity damage to components.", section: "Active Recall" },
+    { term: "Most common cause of no POST after a build?", def: "Power, RAM, or CPU seating issues, or missing standoffs.", section: "Active Recall" },
+    { term: "Form factor usage", def: "Use form factor when discussing case compatibility, not performance.", section: "Application Logic" },
+    { term: "Chipset usage", def: "Use chipset when explaining feature limitations like USB count, PCIe lanes, or overclocking.", section: "Application Logic" },
+    { term: "Socket type usage", def: "Use socket type when validating CPU compatibility.", section: "Application Logic" },
+    { term: "PCIe lanes usage", def: "Use PCIe lanes when diagnosing disabled slots or ports.", section: "Application Logic" },
+    { term: "M.2 vs NVMe distinction", def: "M.2 is the physical slot; NVMe is the protocol. Not all M.2 drives are NVMe.", section: "Application Logic" },
+    { term: "ESD and standoffs usage", def: "Use these when explaining installation safety and troubleshooting shorts.", section: "Application Logic" },
+    { term: "Same socket same features trap", def: "Same socket does NOT mean same features; the chipset controls features.", section: "Common Exam Traps" },
+    { term: "Motherboard size affects performance trap", def: "Form factor affects physical fit, not performance.", section: "Common Exam Traps" },
+    { term: "All M.2 drives are NVMe trap", def: "Some M.2 drives use SATA protocol, not NVMe.", section: "Common Exam Traps" },
+    { term: "PCIe lane sharing trap", def: "Installing NVMe can disable SATA ports due to shared lanes.", section: "Common Exam Traps" },
+    { term: "Forgetting 8-pin CPU power trap", def: "System won't POST without the dedicated CPU power connector.", section: "Common Exam Traps" },
+    { term: "No standoffs trap", def: "Installing a motherboard without standoffs causes electrical shorts.", section: "Common Exam Traps" },
+    { term: "Motherboard power requirements", def: "24-pin ATX main power and 8-pin CPU power are both required.", section: "Power & Installation" },
+    { term: "20+4 pin connector", def: "Provides backward compatibility with older motherboards.", section: "Power & Installation" },
+    { term: "Standoffs (installation)", def: "Metal spacers that prevent the motherboard from shorting against the case.", section: "Power & Installation" },
+    { term: "I/O Shield", def: "Metal plate that aligns rear ports and blocks dust from entering the case.", section: "Power & Installation" },
+    { term: "ESD protection (installation)", def: "Mandatory during installation; use wrist strap and avoid static buildup.", section: "Power & Installation" },
+    { term: "No POST after build", def: "Check power connections, RAM seating, CPU seating, and standoffs.", section: "Exam Kill Phrases" },
+    { term: "Doesn't fit", def: "Form factor mismatch or wrong CPU socket.", section: "Exam Kill Phrases" },
+    { term: "Disabled ports after adding a card", def: "PCIe lane sharing; the chipset ran out of lanes.", section: "Exam Kill Phrases" },
+    { term: "Can't overclock", def: "Chipset limitation, not CPU; need an overclocking-capable chipset.", section: "Exam Kill Phrases" },
+  ]
+},
+];
+
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+let currentChapterIdx = -1;
+let activeSection = 'All';
+let filteredCards = [];
+let currentIndex = 0;
+let isFlipped = false;
+let editCardMode = 'edit';
+let deleteChapterIdx = -1;
+
+function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function getSections(ch) { return [...new Set(ch.cards.map(c=>c.section))]; }
+const icons=['📘','📗','📙','📕','📒','📓','📔','🔵','🟢','🟡','🔴','🟣','⚡','🧠','🔧','🖥️','🌐','🔒'];
+function getIcon(i){return icons[i%icons.length];}
+
+// ══════════════════════════════════════════════
+// HOME
+// ══════════════════════════════════════════════
+function renderHome() {
+  const total=chapters.reduce((s,ch)=>s+ch.cards.length,0);
+  document.getElementById('statChapters').textContent=chapters.length;
+  document.getElementById('statCards').textContent=total;
+  const grid=document.getElementById('chapterGrid');
+  if(!chapters.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--text-dim);"><p style="font-size:4rem;opacity:0.2;margin-bottom:20px;">📚</p><p>No chapters yet. Click <strong>+ Import Chapter</strong>!</p></div>';return;}
+  grid.innerHTML=chapters.map((ch,i)=>{
+    const secs=getSections(ch);
+    const tags=secs.slice(0,5).map(s=>`<span class="section-tag">${s}</span>`).join('')+(secs.length>5?`<span class="section-tag">+${secs.length-5}</span>`:'');
+    return `<div class="chapter-card" onclick="openChapter(${i})">
+      <div style="display:flex;justify-content:space-between;align-items:start;">
+        <div class="chapter-icon">${getIcon(i)}</div>
+        <button onclick="event.stopPropagation();askDeleteChapter(${i})" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:0.8rem;padding:4px 8px;border-radius:6px;" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text-dim)'">&times;</button>
+      </div>
+      <div class="chapter-title">${ch.name}</div>
+      <div class="chapter-meta"><span>${ch.cards.length} cards</span><span>${secs.length} sections</span></div>
+      <div class="chapter-sections">${tags}</div>
+    </div>`;
+  }).join('');
+}
+
+function askDeleteChapter(i){deleteChapterIdx=i;document.getElementById('deleteChapterName').textContent=`"${chapters[i].name}" — ${chapters[i].cards.length} cards will be deleted.`;document.getElementById('deleteChapterModal').classList.add('open');}
+function closeDeleteChapter(){document.getElementById('deleteChapterModal').classList.remove('open');}
+function confirmDeleteChapter(){chapters.splice(deleteChapterIdx,1);closeDeleteChapter();renderHome();showToast('Chapter deleted');}
+
+// ══════════════════════════════════════════════
+// STUDY
+// ══════════════════════════════════════════════
+function openChapter(i){currentChapterIdx=i;activeSection='All';currentIndex=0;showScreen('studyScreen');document.getElementById('studyTitle').textContent=chapters[i].name;renderStudy();}
+function studyAll(){if(!chapters.length)return;currentChapterIdx=-999;activeSection='All';currentIndex=0;showScreen('studyScreen');document.getElementById('studyTitle').textContent='All Cards';renderStudy();}
+function getCurrentCards(){if(currentChapterIdx===-999)return chapters.flatMap(ch=>ch.cards.map(c=>({...c,_ch:ch.name})));return chapters[currentChapterIdx]?.cards||[];}
+function getCurrentSections(){return[...new Set(getCurrentCards().map(c=>c.section))];}
+function filterStudyCards(){const a=getCurrentCards();filteredCards=activeSection==='All'?[...a]:a.filter(c=>c.section===activeSection);}
+
+function renderSubTabs(){
+  const secs=getCurrentSections();const allC=getCurrentCards().length;const el=document.getElementById('subTabs');
+  let h=`<div class="sub-tab ${activeSection==='All'?'active':''}" onclick="setSection('All')">All <span class="cnt">${allC}</span></div>`;
+  secs.forEach(s=>{const c=getCurrentCards().filter(x=>x.section===s).length;const a=activeSection===s?'active':'';const ss=s.replace(/'/g,"\\'");h+=`<div class="sub-tab ${a}" onclick="setSection('${ss}')">${s} <span class="cnt">${c}</span></div>`;});
+  el.innerHTML=h;
+}
+
+function renderStudyCard(){
+  const area=document.getElementById('cardArea');
+  if(!filteredCards.length){area.innerHTML='<div style="text-align:center;color:var(--text-dim);padding:60px 20px;"><p style="font-size:2rem;opacity:0.2;margin-bottom:12px;">📭</p><p>No cards here yet.</p></div>';document.getElementById('progressFill').style.width='0%';document.getElementById('progressLabel').textContent='0 / 0';document.getElementById('prevBtn').disabled=true;document.getElementById('nextBtn').disabled=true;return;}
+  if(!document.getElementById('card')){area.innerHTML=`<div class="card-container" onclick="flipCard()"><div class="card" id="card"><div class="card-face card-front"><div class="section-badge" id="secBadge"></div><div class="flabel">Term</div><div class="term" id="termText"></div><div class="hint">click to reveal</div></div><div class="card-face card-back"><div class="flabel">Definition</div><div class="definition" id="defText"></div></div></div></div>`;}
+  if(currentIndex>=filteredCards.length)currentIndex=filteredCards.length-1;
+  if(currentIndex<0)currentIndex=0;
+  const c=filteredCards[currentIndex];
+  document.getElementById('termText').textContent=c.term;
+  document.getElementById('defText').textContent=c.def;
+  document.getElementById('secBadge').textContent=c.section;
+  document.getElementById('progressLabel').textContent=`${currentIndex+1} / ${filteredCards.length}`;
+  document.getElementById('progressFill').style.width=`${((currentIndex+1)/filteredCards.length)*100}%`;
+  document.getElementById('sectionLabel').textContent=activeSection==='All'?'':activeSection;
+  document.getElementById('prevBtn').disabled=currentIndex===0;
+  document.getElementById('nextBtn').disabled=currentIndex===filteredCards.length-1;
+  isFlipped=false;if(document.getElementById('card'))document.getElementById('card').classList.remove('flipped');
+}
+
+function renderStudy(){filterStudyCards();renderSubTabs();renderStudyCard();setTimeout(updateScrollArrows,50);}
+function setSection(s){activeSection=s;currentIndex=0;renderStudy();}
+function goHome(){showScreen('homeScreen');renderHome();}
+
+function flipCard(){if(!filteredCards.length)return;isFlipped=!isFlipped;if(document.getElementById('card'))document.getElementById('card').classList.toggle('flipped',isFlipped);}
+function next(){if(currentIndex<filteredCards.length-1){currentIndex++;renderStudyCard();}}
+function prev(){if(currentIndex>0){currentIndex--;renderStudyCard();}}
+function shuffle(){for(let i=filteredCards.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[filteredCards[i],filteredCards[j]]=[filteredCards[j],filteredCards[i]];}currentIndex=0;renderStudyCard();showToast('Shuffled!');}
+
+// ══════════════════════════════════════════════
+// EDIT / ADD
+// ══════════════════════════════════════════════
+function populateSectionDropdown(sel){const s=getCurrentSections();document.getElementById('editSection').innerHTML=s.map(x=>`<option value="${x}" ${x===sel?'selected':''}>${x}</option>`).join('');}
+
+function openEditCard(){
+  if(!filteredCards.length||currentChapterIdx===-999)return;
+  editCardMode='edit';document.getElementById('editTitle').textContent='Edit Card';
+  document.getElementById('editSubtitle').textContent=`Card ${currentIndex+1} of ${filteredCards.length}`;
+  const c=filteredCards[currentIndex];populateSectionDropdown(c.section);
+  document.getElementById('editNewSec').value='';document.getElementById('editTerm').value=c.term;document.getElementById('editDef').value=c.def;
+  document.getElementById('editDeleteBtn').style.display='inline-block';document.getElementById('editModal').classList.add('open');
+}
+
+function openAddCard(){
+  if(currentChapterIdx===-999)return;editCardMode='add';
+  document.getElementById('editTitle').textContent='Add Card';document.getElementById('editSubtitle').textContent=chapters[currentChapterIdx].name;
+  const d=activeSection==='All'?(getCurrentSections()[0]||'General'):activeSection;populateSectionDropdown(d);
+  document.getElementById('editNewSec').value='';document.getElementById('editTerm').value='';document.getElementById('editDef').value='';
+  document.getElementById('editDeleteBtn').style.display='none';document.getElementById('editModal').classList.add('open');
+}
+
+function closeEditModal(){document.getElementById('editModal').classList.remove('open');}
+
+function saveCard(){
+  const ns=document.getElementById('editNewSec').value.trim();const section=ns||document.getElementById('editSection').value;
+  const term=document.getElementById('editTerm').value.trim();const def=document.getElementById('editDef').value.trim();
+  if(!term||!def)return;const ch=chapters[currentChapterIdx];
+  if(editCardMode==='edit'){const o=filteredCards[currentIndex];const i=ch.cards.indexOf(o);if(i!==-1)ch.cards[i]={term,def,section};showToast('Card updated!');}
+  else{ch.cards.push({term,def,section});activeSection=section;filterStudyCards();currentIndex=filteredCards.length-1;showToast('Card added!');}
+  closeEditModal();renderStudy();
+}
+
+function deleteCard(){
+  if(currentChapterIdx===-999)return;const ch=chapters[currentChapterIdx];const o=filteredCards[currentIndex];
+  const i=ch.cards.indexOf(o);if(i!==-1)ch.cards.splice(i,1);
+  if(currentIndex>=filteredCards.length-1)currentIndex=Math.max(0,currentIndex-1);
+  closeEditModal();renderStudy();showToast('Card deleted');
+}
+
+// ══════════════════════════════════════════════
+// IMPORT
+// ══════════════════════════════════════════════
+function openImport(){document.getElementById('importModal').classList.add('open');}
+function closeImport(){document.getElementById('importModal').classList.remove('open');document.getElementById('importText').value='';document.getElementById('importChapter').value='';document.getElementById('importPreview').style.display='none';}
+
+function parseImport(text){
+  const lines=text.split('\n');let sec='General';const cards=[];
+  for(let raw of lines){let l=raw.trim();if(!l||l.match(/^---+$/)||l.startsWith('>'))continue;
+    const m=l.match(/^#{1,4}\s+(.+)/);if(m){let s=m[1].replace(/\*\*/g,'').replace(/[^\w\s():&,\-\/\.+]/g,'').trim();if(s)sec=s;continue;}
+    const d=l.indexOf(' - ');if(d>0){let t=l.substring(0,d).replace(/^[-•*]\s*/,'').replace(/\*\*/g,'').trim();let df=l.substring(d+3).replace(/\*\*/g,'').trim();if(t&&df)cards.push({term:t,def:df,section:sec});}
+  }return cards;
+}
+
+function runImport(){
+  const name=document.getElementById('importChapter').value.trim();
+  if(!name){document.getElementById('importChapter').style.borderColor='var(--red)';setTimeout(()=>document.getElementById('importChapter').style.borderColor='',2000);return;}
+  const parsed=parseImport(document.getElementById('importText').value);
+  if(!parsed.length){const p=document.getElementById('importPreview');p.style.display='block';p.style.color='var(--red)';p.textContent='No cards found. Use: Term - Definition';return;}
+  const existing=chapters.find(ch=>ch.name===name);
+  if(existing)existing.cards.push(...parsed);else chapters.push({name,cards:parsed});
+  closeImport();renderHome();showToast(`Imported ${parsed.length} cards into "${name}"!`);
+}
+
+document.getElementById('importText').addEventListener('input',function(){
+  const p=parseImport(this.value);const pr=document.getElementById('importPreview');
+  if(this.value.trim()){const s=[...new Set(p.map(c=>c.section))];pr.style.display='block';pr.style.color='var(--green)';pr.textContent=`Preview: ${p.length} cards, ${s.length} section(s): ${s.join(', ')}`;}
+  else pr.style.display='none';
+});
+
+// ══════════════════════════════════════════════
+// TAB SCROLLING
+// ══════════════════════════════════════════════
+function scrollTabs(dir){const w=document.getElementById('subTabsWrap');w.scrollBy({left:dir*180,behavior:'smooth'});setTimeout(updateScrollArrows,350);}
+function updateScrollArrows(){const w=document.getElementById('subTabsWrap');if(!w)return;document.getElementById('scrollLeft').classList.toggle('hidden',w.scrollLeft<=5);document.getElementById('scrollRight').classList.toggle('hidden',w.scrollLeft+w.clientWidth>=w.scrollWidth-5);}
+document.getElementById('subTabsWrap')?.addEventListener('scroll',updateScrollArrows);
+
+// ══════════════════════════════════════════════
+// KEYBOARD
+// ══════════════════════════════════════════════
+document.addEventListener('keydown',(e)=>{
+  if(document.querySelector('.modal-overlay.open'))return;
+  if(document.getElementById('homeScreen').classList.contains('active'))return;
+  if(e.key==='ArrowRight')next();else if(e.key==='ArrowLeft')prev();
+  else if(e.key===' '){e.preventDefault();flipCard();}
+  else if(e.key.toLowerCase()==='s')shuffle();
+  else if(e.key==='Escape')goHome();
+});
+document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',(e)=>{if(e.target===m)m.classList.remove('open');});});
+
+// INIT
+renderHome();
+</script>
+</body>
+</html>
